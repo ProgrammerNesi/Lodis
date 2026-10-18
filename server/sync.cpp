@@ -92,3 +92,4 @@ void callSocket()
 // c++ -std=c++17 -o build/serv server/sync.cpp utils/evals.cpp utils/resp.cpp
 
 //c++ -std=c++17 -o  build/serv main.cpp server/sync.cpp utils/evals.cpp utils/resp.cpp
+
