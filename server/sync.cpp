@@ -3,6 +3,8 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <string.h>
+#include "../utils/utils.h"
+#include<unistd.h>
 void callSocket()
 {
     // 1 .Creating a socket
@@ -30,7 +32,7 @@ void callSocket()
 
     // bind() assigns the address specified by addr to the socket referred to by
     // the file descriptor sockfd
-    int bindResult = bind(sockFd, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
+    int bindResult = ::bind(sockFd, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
     if (bindResult == -1)
     {
         perror("bind");
@@ -71,11 +73,22 @@ void callSocket()
         // If no flags are set, recv() is equivalent to read()
         while (true)
         {
-            char buffer[5024] = {0};
-            recv(clientSocket, buffer, sizeof(buffer), 0);
-            std::cout << "Message from client: " << buffer << std::endl;
-            const char* message = "Hello, server!";
-            send(clientSocket, buffer, strlen(message), 0);
+            char buffer[1024] = {0};
+            int bytesRead=recv(clientSocket, buffer, sizeof(buffer), 0);
+            if(bytesRead <= 0){
+                close(clientSocket);
+                cout << "Client disconnected"<<endl;
+                break;
+            }
+            cout << "Message from client: " << buffer << endl;
+            string message = evaluateAndRespond(buffer);
+            send(clientSocket, message.c_str(), message.length(), 0);
+
         }
     }
 }
+//command to run  c++ -std=c++17 -o server Lodis/server/sync.cpp Lodis/utils/utils.cpp Lodis/utils/evals.cpp Lodis/utils/resp.cpp -lpthread
+
+// c++ -std=c++17 -o build/serv server/sync.cpp utils/evals.cpp utils/resp.cpp
+
+//c++ -std=c++17 -o  build/serv main.cpp server/sync.cpp utils/evals.cpp utils/resp.cpp
