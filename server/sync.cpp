@@ -2,7 +2,6 @@
 #include <cstdio>
 #include <netinet/in.h>
 #include <iostream>
-#include <string.h>
 #include "../utils/utils.h"
 #include<unistd.h>
 void callSocket()

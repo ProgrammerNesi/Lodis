@@ -6,6 +6,17 @@
 #include <string.h>
 #include <unistd.h>
 #include<iostream>
+#include <fcntl.h>
+#include "../utils/utils.h"
+
+//Making our thread non-blocking
+//When some erro happens in our fd in listen accept recv or send, they might wait long 
+//and hence block our thread, so we incorporate this flag set to avoid it
+static void setNonBlocking(int fd)
+{
+    int flags = fcntl(fd, F_GETFL, 0);
+    fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
 
 void callAsync (){
 
@@ -15,6 +26,7 @@ void callAsync (){
 
     //Creating a server socket
     int socket_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
+    setNonBlocking(socket_listen_fd);
     int socket_connection_fd;
     if(socket_listen_fd < 0){
         perror("socket");
@@ -101,6 +113,7 @@ void callAsync (){
                 // Create a new socket for the actual connection to client.
                 socklen_t client_len = sizeof(client_addr);
                 socket_connection_fd = accept(event_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_len);
+                setNonBlocking(socket_connection_fd); 
                 clients++;
                 std::cout<<"Client connected, Active Clients: "<<clients<<std::endl;
                 if (socket_connection_fd == -1)
@@ -130,7 +143,12 @@ void callAsync (){
             {
                 // Read bytes from socket
                 char buf[1024];
-                size_t bytes_read = recv(event_fd, buf, sizeof(buf), 0);
+                ssize_t bytes_read = recv(event_fd, buf, sizeof(buf), 0);
+                if(bytes_read>0){
+                    string message = evaluateAndRespond(buf);
+                    std::cout<<message<<std::endl;
+                    send(event_fd, message.c_str(), message.length(), 0);
+                }
                 printf("read %zu bytes\n", bytes_read);
             }
         }
@@ -139,3 +157,5 @@ void callAsync (){
 }
 
 //c++ -std=c++17 -o  build/serv2 main.cpp server/async.cpp utils/evals.cpp utils/resp.cpp
+
+//Build send functionality in it
