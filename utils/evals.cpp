@@ -1,36 +1,109 @@
-#include<string>
+#include <string>
 #include "utils.h"
-#include<algorithm>
+#include <algorithm>
+#include <unordered_map>
+#include <iostream>
+#include <ctime>
 using namespace std;
 
+// SET k y EX 5 (in seconds)
+string evalSET(vector<string> &args)
+{
+    long long expiresAt = -1;
+    if (args.size() >= 4)
+    {
+        long long seconds = stoll(args[3]);
+        expiresAt = static_cast<long long>(time(nullptr)) + seconds;
+    }
+    else if (args.size() != 2)
+    {
+        return "-ERR syntax error\r\n";
+    }
+    string key = args[0];
+    string value = args[1];
+    putKey(key, value, expiresAt);
+    return "+OK\r\n";
+}
 
-string evaluateAndRespond(const string& resp){
-    if(resp.empty()){
+string evalGET(vector<string> &args)
+{
+
+    string value = getKey(args[0]);
+    if(value=="$-1\r\n"){
+        return value;
+    }
+    return encode(value, true);
+}
+
+string evalTTL(vector<string> &args)
+{
+    string key = args[0];
+    int ttl = getTTL(key);
+    string ttls = to_string(ttl);
+    // since we are taking it as alias(&) in the encode function,
+    // we need to pass it as a variable explicilty
+    return encode(ttls, false);
+}
+
+string evaluateAndRespond(const string &resp)
+{
+    if (resp.empty())
+    {
         return "Error: Empty response";
     }
-    string command=readCommand(resp).Cmd;
-    transform(command.begin(),command.end(),command.begin(),::toupper);
-    string arg=readCommand(resp).Arg;
+    string command = readCommand(resp).Cmd;
+    transform(command.begin(), command.end(), command.begin(), ::toupper);
     vector<string> args;
-    if(readCommand(resp).Args.has_value()){
-        args=readCommand(resp).Args.value();
+
+    if (readCommand(resp).Args.size()>0)
+    {
+        args = readCommand(resp).Args;
     }
-    if(command=="PING"){
-        if(arg.empty()){    
+    cout << "Command: " << command
+         << ", Args count: " << args.size() << endl;
+    if (command == "PING")
+    {
+        if (args.empty())
+        {
             return "+PONG\r\n";
-        }else{
-            if(args.size()>0){
-                string ans="";
-                for(const auto& a:args){
-                    ans+=a+" ";
-                }
-                return "+"+ans+"\r\n";
+        }
+        else
+        {
+            string ans = "";
+            for (const auto &a : args)
+            {
+                ans += a + " ";
             }
-            return "+"+arg+"\r\n"; 
+            return "+" + ans + "\r\n";
         }
     }
-    else{
-        return "-ERR unknown command '"+command+"'\r\n";
+
+    else if (command == "SET")
+    {
+        if (args.size() > 0)
+        {
+            return evalSET(args);
+        }
+        return "-ERR wrong number of arguments for 'set' command\r\n";
     }
 
+    else if (command == "GET")
+    {
+        if (args.size() > 0)
+        {
+            return evalGET(args);
+        }
+        return "-ERR wrong number of arguments for 'get' command\r\n";
+    }
+
+    else if(command=="TTL"){
+        if(args.size()>0){
+            return evalTTL(args);
+        }
+        return "-ERR wrong number of arguments for 'ttl' command\r\n";
+    }
+    else
+    {
+        return "-ERR unknown command '" + command + "'\r\n";
+    }
 }

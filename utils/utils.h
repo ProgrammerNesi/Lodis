@@ -5,10 +5,13 @@
 using namespace std;
 struct command{
     string Cmd;
-    string Arg;
-    optional<vector<string>> Args;
+    vector<string> Args;
 };
 
 
 command readCommand(const string& resp);
 string evaluateAndRespond(const string& resp);
+string encode(string&data,bool isString);
+void putKey(string& key,string& value,long long expiresAt=-1);
+string getKey(string& key);
+int getTTL(string& key);

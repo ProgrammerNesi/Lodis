@@ -14,11 +14,21 @@ struct decodedMessage
 struct command
 {
     string Cmd;
-    string Arg;
-    optional<vector<string>> Args;
+    vector<string> Args;
 };
 
+
 decodedMessage decodeResp(const string &resp);
+
+
+string encode(string&data,bool isString){
+    if(isString){
+        return "+"+data+"\r\n";
+    }
+    else{
+        return ":"+data+"\r\n";
+    }
+}
 command readCommand(const string &resp)
 {
     command cmd;
@@ -27,20 +37,23 @@ command readCommand(const string &resp)
     {
         if (decoded.array->size() > 0)
         {
+            
             cmd.Cmd = decoded.array->at(0);
+            cout<<cmd.Cmd;
         }
         if (decoded.array->size() > 1)
         {
 
             if (decoded.array->size() == 2)
             {
-                cmd.Arg = decoded.array->at(1);
+                vector<string>temp;
+                temp.push_back(decoded.array->at(1));
+                cmd.Args=temp;
             }
             else
             {
                 vector<string> args(decoded.array->begin() + 1, decoded.array->end());
                 cmd.Args = args;
-                cmd.Arg = "placeholder"; // Placeholder value for Arg when Args is present
             }
         }
     }
