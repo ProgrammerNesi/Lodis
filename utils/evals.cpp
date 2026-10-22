@@ -45,6 +45,30 @@ string evalTTL(vector<string> &args)
     return encode(ttls, false);
 }
 
+
+//DEL k1 k2 k3
+string evalDEL(vector<string>&args){
+    int count=0;
+    for(string s:args){
+        if(delKey(s)){
+            count++;
+        }
+    }
+    string temp=to_string(count);
+    return encode(temp, false);
+}
+
+//EXPIRE k 10
+string evalEXP(vector<string>&args){
+    string temp;
+    if(setEXP(args[0],stoi(args[1]))){
+        temp="1";
+        return encode(temp,false);
+    }
+    temp="0";
+    return encode(temp,false);
+}
+
 string evaluateAndRespond(const string &resp)
 {
     if (resp.empty())
@@ -80,7 +104,7 @@ string evaluateAndRespond(const string &resp)
 
     else if (command == "SET")
     {
-        if (args.size() > 0)
+        if (args.size() > 1)
         {
             return evalSET(args);
         }
@@ -101,6 +125,18 @@ string evaluateAndRespond(const string &resp)
             return evalTTL(args);
         }
         return "-ERR wrong number of arguments for 'ttl' command\r\n";
+    }
+    else if(command=="DEL"){
+        if(args.size()>0){
+            return evalDEL(args);
+        }
+        return "-ERR wrong number of arguments for 'ttl' command\r\n";
+    }
+    else if(command == "EXPIRE"){
+        if(args.size()>1){
+            return evalEXP(args);
+        }
+        return "-ERR wrong number of arguments for 'expire' command\r\n";
     }
     else
     {

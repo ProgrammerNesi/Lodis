@@ -11,10 +11,12 @@ struct Obj
 unordered_map<string, Obj> mpp;
 
 
-void delKey(string& key){
+bool delKey(string& key){
     if(mpp.find(key)!=mpp.end()){
         mpp.erase(key);
+        return true;
     }
+    return false;
 }
 //Doing put operation on the global map
 void putKey(string& key,string& value,long long expiresAt=-1){
@@ -55,4 +57,13 @@ int getTTL(string& key){
         return -1;
     }
     return static_cast<int>(it->second.expiresAt - now);
+}
+
+bool setEXP(string key, int t){
+    if(mpp.find(key)==mpp.end()){
+        return false;
+    }
+    long long expiresAt = static_cast<long long>(time(nullptr)) + t;
+    mpp[key].expiresAt=expiresAt;
+    return true;
 }
