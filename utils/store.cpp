@@ -2,16 +2,14 @@
 #include<unordered_map>
 #include<iostream>
 #include<vector>
+#include "utils.h"
 using namespace std;
-struct Obj
-{
-    string value;
-    long long expiresAt = -1;
-};
 
 //The global store
 unordered_map<string, Obj> mpp;
 
+//Setting max limit for the in memory store to hold
+int keyLimit=5;
 
 bool delKey(string& key){
     if(mpp.find(key)!=mpp.end()){
@@ -20,13 +18,19 @@ bool delKey(string& key){
     }
     return false;
 }
+
 //Doing put operation on the global map
-void putKey(string& key,string& value,long long expiresAt=-1){
+void putKey(string& key,string& value,long long expiresAt){
+    //Eviction is done when limit reaches
+    if(mpp.size()>=keyLimit){
+        evict();
+    }
     Obj obj;
     obj.value=value;
     obj.expiresAt=expiresAt;
     mpp[key]=obj;
 }
+
 
 string getKey(string& key){
     if (mpp.find(key) == mpp.end())
@@ -60,6 +64,7 @@ int getTTL(string& key){
     }
     return static_cast<int>(it->second.expiresAt - now);
 }
+
 
 bool setEXP(string key, int t){
     if(mpp.find(key)==mpp.end()){

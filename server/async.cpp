@@ -178,6 +178,6 @@ void callAsync()
     }
 }
 
-// c++ -std=c++17 -o  build/serv2 main.cpp server/async.cpp utils/evals.cpp utils/resp.cpp utils/store.cpp
+// c++ -std=c++17 -o  build/serv2 main.cpp server/async.cpp utils/evals.cpp utils/resp.cpp utils/store.cpp utils/eviction.cpp
 
 // Build send functionality in it
