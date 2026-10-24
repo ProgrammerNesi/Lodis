@@ -17,3 +17,4 @@ string getKey(string& key);
 int getTTL(string& key);
 bool delKey(string& key);
 bool setEXP(string key, int t);
+void deleteExpKeys();
