@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <iostream>
 #include <ctime>
+#include "../config/config.h"
+
 using namespace std;
 
 // SET k y EX 5 (in seconds)
@@ -68,6 +70,13 @@ string evalEXP(vector<string>&args){
     temp="0";
     return encode(temp,false);
 }
+
+
+string evalBGREWRITEAOF(){
+    dumpAllAOF();
+    return RESP_OK;
+}
+
 
 string evaluateAndRespond(const string &resp)
 {
@@ -137,6 +146,9 @@ string evaluateAndRespond(const string &resp)
             return evalEXP(args);
         }
         return "-ERR wrong number of arguments for 'expire' command\r\n";
+    }
+    else if(command=="BGREWRITEAOF"){
+        return evalBGREWRITEAOF();
     }
     else
     {

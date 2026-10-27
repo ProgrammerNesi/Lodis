@@ -3,13 +3,11 @@
 #include<iostream>
 #include<vector>
 #include "utils.h"
+#include "../config/config.h"
 using namespace std;
 
 //The global store
 unordered_map<string, Obj> mpp;
-
-//Setting max limit for the in memory store to hold
-int keyLimit=5;
 
 bool delKey(string& key){
     if(mpp.find(key)!=mpp.end()){

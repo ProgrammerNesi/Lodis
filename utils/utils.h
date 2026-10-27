@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include<unordered_map>
+
 using namespace std;
 struct command{
     string Cmd;
@@ -24,3 +25,4 @@ bool setEXP(string key, int t);
 void deleteExpKeys();
 extern std::unordered_map<std::string, Obj> mpp;
 void evict();
+void dumpAllAOF();
